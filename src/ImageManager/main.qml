@@ -1,6 +1,7 @@
 import QtQuick 2.5
 import QtQuick.Window 2.2
 import QtQml.Models 2.2
+import QtQuick.Controls 1.4
 
 import imageManager 1.0
 
@@ -20,6 +21,8 @@ Window {
 
     ImageChecker{
         id:imageChecker
+        onPackageManagerOutput: logOutput.append(output)
+        Component.onCompleted: refreshPackage()
     }
 
     ListView{
@@ -101,6 +104,20 @@ Window {
                 }
             }
         }
+    }
+    TextArea{
+        id:logOutput
+        anchors.fill: parent
+        visible: false
+        readOnly: true
+    }
+    Button{
+        anchors{
+            right:parent.right
+            bottom:parent.bottom
+        }
+        text:!logOutput.visible ? "Show log" : "Hide log"
+        onClicked: logOutput.visible = !logOutput.visible
     }
 }
 

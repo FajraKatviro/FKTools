@@ -1,0 +1,6 @@
+[submodule "FKUtility"]
+	path = FKUtility
+	url = https://github.com/FajraKatviro/FKUtility.git
+[submodule "src/FKUtility"]
+	path = src/FKUtility
+	url = https://github.com/FajraKatviro/FKUtility.git
