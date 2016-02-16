@@ -4,6 +4,7 @@
 #include <QJsonDocument>
 #include <QProcess>
 #include <QFile>
+#include <QDir>
 
 #include "../FKUtility/selectBestSizeset.h"
 #include "../FKUtility/sizeString.h"
@@ -111,6 +112,12 @@ void ImageChecker::rebuildModel()
     emit isRefreshingChanged();
 }
 
+void ImageChecker::setPackageUrl(const QUrl url)
+{
+    QDir dir;
+    setPackageFolder(dir.relativeFilePath(url.toLocalFile()));
+}
+
 void ImageChecker::refreshError()
 {
     QString output=QString("Refresh error: %1").arg(QString::number(_rebuildPackageProcess->error()));
@@ -121,48 +128,45 @@ void ImageChecker::refreshError()
 
 QJsonObject ImageChecker::readPackageMap(){
 
-    //QFile dataSource(QString("%1/packages.json").arg(_packageFolder));
+    QFile dataSource(QString("%1/packages.json").arg(_packageFolder));
 
-    QByteArray data(""
-                    "{"
-                    ""
-//                    "   \"sourceImages\":["
-//                    "      {\"path\":\"myImg.png\","
-//                    "       \"sizes\":["
+    if(!dataSource.open(QIODevice::ReadOnly)){
+        QString error("Unable open packages.json");
+        emit packageManagerOutput(error);
+        return QJsonObject();
+    }
+
+    QByteArray data(dataSource.readAll());
+
+//    QByteArray data(""
+//                    "{"
+//                    ""
+//                    ""
+//                    "   \"sizes\":[\"2732x1536\",\"1024x768\"],"
+//                    ""
+//                    "   \"images\":["
+//                    "       {\"path\":\"myImg.png\","
+//                    "        \"crop\":false,"
+//                    "        \"sourceSizes\":["
 //                    "           \"2732x1536\","
 //                    "           \"400x400\""
-//                    "       ]},"
-//                    "      {\"path\":\"compressed.jpg\","
-//                    "       \"sizes\":["
+//                    "        ],"
+//                    "        \"originSizes\":["
+//                    "           \"\","
+//                    "           \"400x400\""
+//                    "        ]},"
+//                    "       {\"path\":\"compressed.jpg\","
+//                    "        \"crop\":false,"
+//                    "        \"sourceSizes\":["
 //                    "           \"2732x1536\""
-//                    "       ]}"
-//                    "   ],"
-                    ""
-                    "   \"sizes\":[\"2732x1536\",\"1024x768\"],"
-                    ""
-                    "   \"images\":["
-                    "       {\"path\":\"myImg.png\","
-                    "        \"crop\":false,"
-                    "        \"sourceSizes\":["
-                    "           \"2732x1536\","
-                    "           \"400x400\""
-                    "        ],"
-                    "        \"originSizes\":["
-                    "           \"\","
-                    "           \"400x400\""
-                    "        ]},"
-                    "       {\"path\":\"compressed.jpg\","
-                    "        \"crop\":false,"
-                    "        \"sourceSizes\":["
-                    "           \"2732x1536\""
-                    "        ],"
-                    "        \"originSizes\":["
-                    "           \"\","
-                    "           \"\""
-                    "        ]}"
-                    "   ]"
-                    "}"
-                    "");
+//                    "        ],"
+//                    "        \"originSizes\":["
+//                    "           \"\","
+//                    "           \"\""
+//                    "        ]}"
+//                    "   ]"
+//                    "}"
+//                    "");
 
     QJsonDocument doc(QJsonDocument::fromJson(data));
     return doc.object();

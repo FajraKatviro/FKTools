@@ -5,6 +5,7 @@
 
 #include <QStringList>
 #include <QJsonObject>
+#include <QUrl>
 
 #include <QStandardItemModel>
 typedef QStandardItemModel ImagesetModel;
@@ -37,6 +38,7 @@ signals:
 public slots:
     void refreshPackage();
     void rebuildModel();
+    void setPackageUrl(const QUrl url);
 private slots:
     void refreshError();
 private:

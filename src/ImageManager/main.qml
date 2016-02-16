@@ -2,6 +2,7 @@ import QtQuick 2.5
 import QtQuick.Window 2.2
 import QtQml.Models 2.2
 import QtQuick.Controls 1.4
+import QtQuick.Dialogs 1.2
 
 import imageManager 1.0
 
@@ -22,7 +23,7 @@ Window {
     ImageChecker{
         id:imageChecker
         onPackageManagerOutput: logOutput.append(output)
-        Component.onCompleted: refreshPackage()
+        //Component.onCompleted: refreshPackage()
     }
 
     ListView{
@@ -31,6 +32,16 @@ Window {
         header: headerDelegate
         delegate: rowDelegate
         model:imageChecker.model
+    }
+
+    FileDialog{
+        id:pathSelector
+        title:"Choose package folder"
+        folder:"."
+        selectFolder: true
+        selectExisting: true
+        selectMultiple: false
+        onAccepted: imageChecker.setPackageUrl(fileUrl)
     }
 
     Component{
@@ -49,6 +60,14 @@ Window {
                     color:"lightgrey"
                     border.width: commonBorderWidth
                     radius:commonRadius
+                    Text{
+                        anchors.centerIn: parent
+                        text:imageChecker.packageFolder == "" ? "Select package folder" : imageChecker.packageFolder
+                    }
+                    MouseArea{
+                        anchors.fill: parent
+                        onClicked: pathSelector.open()
+                    }
                 }
                 delegate: Rectangle {
                     width:columnWidth
