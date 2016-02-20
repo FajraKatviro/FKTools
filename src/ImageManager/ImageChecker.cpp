@@ -45,21 +45,13 @@ bool ImageChecker::isRefreshing() const
     return _rebuildPackageProcess->state()!=QProcess::NotRunning;
 }
 
-void ImageChecker::refreshPackage()
-{
-    if(!isRefreshing()){
-        QString platformSuffix;
-#ifdef Q_OS_WIN32
-        platformSuffix=".exe";
-#endif
-        _rebuildPackageProcess->start(QString("PackageManager%1").arg(platformSuffix));
-        emit isRefreshingChanged();
-    }
+void ImageChecker::refreshPackage(){
+    runManager();
 }
 
 void ImageChecker::rebuildModel()
 {
-    QString output(_rebuildPackageProcess->readAll());
+    QString output(_rebuildPackageProcess->readAllStandardOutput());
     emit packageManagerOutput(output);
 
     if(_model)_model->deleteLater();
@@ -81,11 +73,11 @@ void ImageChecker::rebuildModel()
     QJsonArray images=_packageMap.value("images").toArray();
 
     for(auto img=images.constBegin();img!=images.constEnd();++img){
-        QJsonObject& image=(*img).toObject();
+        QJsonObject image=img->toObject();
         QStandardItem* row=new QStandardItem(image.value("path").toString());
         row->setData(image.value("crop"),ImageCropRole);
 
-        QJsonArray customImageSizes=image.value("originSizes").toArray();
+        QJsonArray customImageSizes=image.value("usedSizes").toArray();
         QJsonArray sourseImageSizes=image.value("sourceSizes").toArray();
         QList<QSize> sourceSizes;
         for(auto s=sourseImageSizes.constBegin();s!=sourseImageSizes.constEnd();++s){
@@ -118,6 +110,14 @@ void ImageChecker::setPackageUrl(const QUrl url)
     setPackageFolder(dir.relativeFilePath(url.toLocalFile()));
 }
 
+void ImageChecker::addSizeset(const QString size){
+    runManager(QStringList(size));
+}
+
+void ImageChecker::removeSizeset(const QString size){
+    runManager(QStringList(),QStringList(size));
+}
+
 void ImageChecker::refreshError()
 {
     QString output=QString("Refresh error: %1").arg(QString::number(_rebuildPackageProcess->error()));
@@ -126,12 +126,36 @@ void ImageChecker::refreshError()
     rebuildModel();
 }
 
+void ImageChecker::runManager(const QStringList& addSizes, const QStringList& removeSizes){
+    if(_packageFolder.isEmpty()){
+        emit packageManagerOutput("Unable run package manager, select package first");
+        return;
+    }
+    if(!isRefreshing()){
+        QString platformSuffix;
+#ifdef Q_OS_WIN32
+        platformSuffix=".exe";
+#endif
+        QStringList arguments(_packageFolder);
+        foreach(QString size,addSizes){
+            arguments.append("-a");
+            arguments.append(size);
+        }
+        foreach(QString size,removeSizes){
+            arguments.append("r");
+            arguments.append(size);
+        }
+        _rebuildPackageProcess->start(QString("PackageManager%1").arg(platformSuffix),arguments);
+        emit isRefreshingChanged();
+    }
+}
+
 QJsonObject ImageChecker::readPackageMap(){
 
-    QFile dataSource(QString("%1/packages.json").arg(_packageFolder));
+    QFile dataSource(QString("%1/package.json").arg(_packageFolder));
 
     if(!dataSource.open(QIODevice::ReadOnly)){
-        QString error("Unable open packages.json");
+        QString error("Unable open package.json");
         emit packageManagerOutput(error);
         return QJsonObject();
     }
@@ -151,7 +175,7 @@ QJsonObject ImageChecker::readPackageMap(){
 //                    "           \"2732x1536\","
 //                    "           \"400x400\""
 //                    "        ],"
-//                    "        \"originSizes\":["
+//                    "        \"usedSizes\":["
 //                    "           \"\","
 //                    "           \"400x400\""
 //                    "        ]},"
@@ -160,7 +184,7 @@ QJsonObject ImageChecker::readPackageMap(){
 //                    "        \"sourceSizes\":["
 //                    "           \"2732x1536\""
 //                    "        ],"
-//                    "        \"originSizes\":["
+//                    "        \"usedSizes\":["
 //                    "           \"\","
 //                    "           \"\""
 //                    "        ]}"

@@ -44,6 +44,18 @@ Window {
         onAccepted: imageChecker.setPackageUrl(fileUrl)
     }
 
+    Dialog{
+        id:sizesetSelector
+        title:"Select size to add"
+        TextField{
+            id:inputField
+            placeholderText: "800x600"
+            validator: RegExpValidator{regExp:/\d+x\d+/}
+        }
+        standardButtons: inputField.acceptableInput ? StandardButton.Ok | StandardButton.Cancel : StandardButton.Cancel
+        onAccepted: imageChecker.addSizeset(inputField.text)
+    }
+
     Component{
         id:headerDelegate
         Item{
@@ -79,6 +91,21 @@ Window {
                         anchors.centerIn: parent
                         text:modelData
                         font.pointSize: 14
+                    }
+                }
+                footer:Rectangle{
+                    width:headerColumnWidth
+                    height:headerRowHeight
+                    color:"lightblue"
+                    border.width: commonBorderWidth
+                    radius:commonRadius
+                    Text{
+                        anchors.centerIn: parent
+                        text:"Add size set..."
+                    }
+                    MouseArea{
+                        anchors.fill: parent
+                        onClicked: sizesetSelector.open()
                     }
                 }
             }

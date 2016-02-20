@@ -1,6 +1,8 @@
 QT += core
 QT -= gui
 
+DESTDIR = $$PWD/../../bin
+
 TARGET = PackageManager
 CONFIG += console
 CONFIG -= app_bundle

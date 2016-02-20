@@ -71,7 +71,7 @@ void PackageManager::refreshPackage(){
                 output(QString("Remove excessive element from usedSizes for %1 image").arg(image));
             }
             for(QJsonArray::iterator s=usedSizes.begin();s!=usedSizes.end();++s){
-                if(!sourceSizes.contains(*s)){
+                if(!s->toString().isEmpty() && !sourceSizes.contains(*s)){
                     output(QString("Remove %1 usedSize from index for %2 image (source size does not exists)").arg(s->toString()).arg(image));
                     *s="";
                 }

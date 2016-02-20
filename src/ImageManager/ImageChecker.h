@@ -39,9 +39,12 @@ public slots:
     void refreshPackage();
     void rebuildModel();
     void setPackageUrl(const QUrl url);
+    void addSizeset(const QString size);
+    void removeSizeset(const QString size);
 private slots:
     void refreshError();
 private:
+    void runManager(const QStringList& addSizes=QStringList(),const QStringList& removeSizes=QStringList());
     QString _packageFolder;
     ImagesetModel* _model;
     QJsonObject _packageMap;
