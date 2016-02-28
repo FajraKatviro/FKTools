@@ -2,6 +2,7 @@ import QtQuick 2.5
 import QtQuick.Window 2.2
 import QtQml.Models 2.2
 import QtQuick.Controls 1.4
+import QtQuick.Controls.Styles 1.4
 import QtQuick.Dialogs 1.2
 
 import imageManager 1.0
@@ -127,13 +128,28 @@ Window {
                 header: Rectangle{
                     width:headerColumnWidth
                     height: rowHeight
-                    color:"yellow"
+                    //color:"yellow"
                     border.width: commonBorderWidth
                     radius:commonRadius
-                    Text{
+                    Column{
                         anchors.centerIn: parent
-                        text: rowItem.text
-                        font.pointSize: 14
+                        Text{
+                            id:imageName
+                            text: rowItem.text
+                            font.pointSize: 14
+                        }
+                        CheckBox{
+                            id:cropCheckbox
+                            text:"Crop image"
+                            checked: imageCrop
+                            onCheckedChanged: imageCrop=checked
+                            style: CheckBoxStyle{
+                                label:Text{
+                                    font.pointSize: 12
+                                    text:control.text
+                                }
+                            }
+                        }
                     }
                 }
                 model:DelegateModel{
