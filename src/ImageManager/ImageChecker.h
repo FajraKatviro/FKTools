@@ -41,6 +41,7 @@ public slots:
     void setPackageUrl(const QUrl url);
     void addSizeset(const QString size);
     void removeSizeset(const QString size);
+    void applySettings();
 private slots:
     void refreshError();
 private:
@@ -50,6 +51,12 @@ private:
     QJsonObject _packageMap;
     QProcess* _rebuildPackageProcess;
     QJsonObject readPackageMap();
+    bool writePackageMap();
+
+    static const int SelfIndexRole=Qt::UserRole+1;
+    static const int ImageCropRole=Qt::UserRole+2;
+    static const int AutoSizeRole=Qt::UserRole+3;
+    static const int SourceSizesRole=Qt::UserRole+4;
 };
 Q_DECLARE_METATYPE(ImagesetModel*)
 

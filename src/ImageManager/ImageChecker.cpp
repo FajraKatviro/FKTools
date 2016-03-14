@@ -60,9 +60,6 @@ void ImageChecker::rebuildModel()
 
     _model=new ImagesetModel(this);
     QHash<int,QByteArray> roleNames=_model->roleNames();
-    const int SelfIndexRole=Qt::UserRole+1;
-    const int ImageCropRole=Qt::UserRole+2;
-    const int AutoSizeRole=Qt::UserRole+3;
     roleNames[SelfIndexRole]="selfIndex";
     roleNames[ImageCropRole]="imageCrop";
     roleNames[AutoSizeRole]="autoSize";
@@ -75,10 +72,12 @@ void ImageChecker::rebuildModel()
     for(auto img=images.constBegin();img!=images.constEnd();++img){
         QJsonObject image=img->toObject();
         QStandardItem* row=new QStandardItem(image.value("path").toString());
-        row->setData(image.value("crop"),ImageCropRole);
+        row->setData(image.value("crop").toBool(),ImageCropRole);
 
         QJsonArray customImageSizes=image.value("usedSizes").toArray();
         QJsonArray sourseImageSizes=image.value("sourceSizes").toArray();
+        row->setData(sourseImageSizes,SourceSizesRole);
+
         QList<QSize> sourceSizes;
         for(auto s=sourseImageSizes.constBegin();s!=sourseImageSizes.constEnd();++s){
             sourceSizes.append(FKUtility::stringToSize((*s).toString()));
@@ -104,22 +103,46 @@ void ImageChecker::rebuildModel()
     emit isRefreshingChanged();
 }
 
-void ImageChecker::setPackageUrl(const QUrl url)
-{
+void ImageChecker::setPackageUrl(const QUrl url){
     QDir dir;
     setPackageFolder(dir.relativeFilePath(url.toLocalFile()));
 }
 
 void ImageChecker::addSizeset(const QString size){
+    applySettings();
     runManager(QStringList(size));
 }
 
 void ImageChecker::removeSizeset(const QString size){
+    applySettings();
     runManager(QStringList(),QStringList(size));
 }
 
-void ImageChecker::refreshError()
-{
+void ImageChecker::applySettings(){
+    qint32 rows=_model->rowCount();
+    QJsonArray images;
+    for(qint32 r=0;r<rows;++r){
+        QStandardItem* item=_model->item(r);
+        QJsonObject image;
+        image["path"]=item->data(Qt::DisplayRole);
+        if(item->data(ImageCropRole).toBool()){
+            image["crop"]=true;
+        }
+        image["sourceSizes"]=item->data(SourceSizesRole).toJsonArray();
+        QJsonArray customImageSizes;
+        qint32 usedSizesCount=item->rowCount();
+        for(qint32 s=0;s<usedSizesCount;++s){
+            customImageSizes.append(item->child(s)->data(AutoSizeRole));
+        }
+        image["usedSizes"]=customImageSizes;
+        images.append(image);
+    }
+    _packageMap["images"]=images;
+
+    writePackageMap();
+}
+
+void ImageChecker::refreshError(){
     QString output=QString("Refresh error: %1").arg(QString::number(_rebuildPackageProcess->error()));
     emit packageManagerOutput(output);
 
@@ -194,5 +217,19 @@ QJsonObject ImageChecker::readPackageMap(){
 
     QJsonDocument doc(QJsonDocument::fromJson(data));
     return doc.object();
+}
+
+bool ImageChecker::writePackageMap(){
+    QFile dataSource(QString("%1/package.json").arg(_packageFolder));
+
+    if(!dataSource.open(QIODevice::WriteOnly)){
+        QString error("Unable open package.json for write");
+        emit packageManagerOutput(error);
+        return false;
+    }
+
+    QJsonDocument doc(_packageMap);
+    QByteArray data(doc.toJson());
+    return dataSource.write(data);
 }
 
