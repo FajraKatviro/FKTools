@@ -23,6 +23,7 @@ PackageGenerator::PackageGenerator(const QString& sourcePath, const QString& bui
 }
 
 bool PackageGenerator::readSetting(){
+    output("Read package.json");
     QFile pkg(_sourceFolder.filePath("package.json"));
     if(pkg.open(QIODevice::ReadOnly)){
         QByteArray data(pkg.readAll());
@@ -52,6 +53,7 @@ bool PackageGenerator::readSetting(){
                 }
 
             }
+            output("Success");
             return true;
         }
     }
@@ -59,19 +61,21 @@ bool PackageGenerator::readSetting(){
     return false;
 }
 
-bool PackageGenerator::syncImages(const bool incremental){
-    if(!cleanImages(incremental)){
-        output("Unable clean images");
-        return false;
-    }
+bool PackageGenerator::addImages(){
+    output("Proccess images");
     for(qint32 s=0;s<_targetSizes.size();++s){
         for(QMap<QString,ImageSetting>::ConstIterator i=_imageSettings.constBegin();i!=_imageSettings.constEnd();++i){
-            processImage(i.key(),i.value().usedSizes.at(s),_targetSizes.at(s),i.value().crop);
+            if(!processImage(i.key(),i.value().usedSizes.at(s),_targetSizes.at(s),i.value().crop)){
+                return false;
+            }
         }
     }
+    output("Success");
+    return true;
 }
 
 bool PackageGenerator::buildQRC(){
+    output("Build qrc");
     for(qint32 s=0;s<_targetSizes.size();++s){
         QString sizeset=FKUtility::sizeToString(_targetSizes.at(s));
         QFile qrc(QString("%1/package.qrc").arg(_buildFolder.filePath(sizeset)));
@@ -90,6 +94,7 @@ bool PackageGenerator::buildQRC(){
             return false;
         }
     }
+    output("Success");
     return true;
 }
 
@@ -103,6 +108,7 @@ bool processResource(QProcess* process){
 }
 
 bool PackageGenerator::buildRCC(){
+    output("Build rcc");
     QList<QProcess*> processPool;
     for(qint32 s=0;s<_targetSizes.size();++s){
         QString path=QString("%1/%2").arg(_buildFolder.path()).arg(FKUtility::sizeToString(_targetSizes.at(s)));
@@ -117,6 +123,7 @@ bool PackageGenerator::buildRCC(){
     for(QList<bool>::ConstIterator r=results.constBegin();r!=results.constEnd();++r){
         if(!(*r))return false;
     }
+    output("Success");
     return true;
 }
 
@@ -125,6 +132,7 @@ void PackageGenerator::output(const QString& msg){
 }
 
 bool PackageGenerator::cleanImages(const bool excessiveOnly){
+    output("Clean images");
     if(!excessiveOnly){
         return _buildFolder.removeRecursively() && _buildFolder.mkdir(".");
     }else{
@@ -150,14 +158,14 @@ bool PackageGenerator::cleanImages(const bool excessiveOnly){
     }
 }
 
-void PackageGenerator::processImage(const QString& image, const QSize& sourceSize, const QSize& targetSize, const bool crop){
+bool PackageGenerator::processImage(const QString& image, const QSize& sourceSize, const QSize& targetSize, const bool crop){
     QDir targetDir(_buildFolder.filePath(FKUtility::sizeToString(targetSize)));
     if(targetDir.exists(image)){
-        return;
+        return true;
     }
     if(!targetDir.mkpath(".")){
         output(QString("Unable create image target folder %1").arg(targetDir.path()));
-        return;
+        return false;
     }
     QString targetFilePath(targetDir.filePath(image));
     QDir sourceDir(_sourceFolder.filePath(FKUtility::sizeToString(sourceSize)));
@@ -165,7 +173,7 @@ void PackageGenerator::processImage(const QString& image, const QSize& sourceSiz
     QImage sourceImage;
     if(!sourceImage.load(sourceFilePath)){
         output(QString("Unable read image %1").arg(sourceFilePath));
-        return;
+        return false;
     }
 
     qreal scaleFactor=std::max(((qreal)targetSize.height())/((qreal)sourceSize.height()),
@@ -175,8 +183,7 @@ void PackageGenerator::processImage(const QString& image, const QSize& sourceSiz
 
     if(!std::islessequal(std::abs(scaleFactor-1.0),std::numeric_limits<double>::epsilon())){
         //if scale factor != 1
-        sourceImage=sourceImage.scaled(finalSize,
-                                       Qt::IgnoreAspectRatio,Qt::SmoothTransformation);
+        sourceImage=sourceImage.scaled(finalSize,Qt::IgnoreAspectRatio,Qt::SmoothTransformation);
     }
 
     if(crop && (finalSize.width()>targetSize.width()) || finalSize.height()>targetSize.height()){
@@ -188,8 +195,10 @@ void PackageGenerator::processImage(const QString& image, const QSize& sourceSiz
 
     if(!sourceImage.save(targetFilePath)){
         output(QString("Unable save image %1").arg(targetFilePath));
-        return;
+        return false;
     }
+
+    return true;
 }
 
 

@@ -11,14 +11,15 @@ class PackageGenerator{
 public:
     PackageGenerator(const QString& sourcePath,const QString& buildPath);
     bool readSetting();
-    bool syncImages(const bool incremental);
+
+    bool cleanImages(const bool excessiveOnly);
+    bool addImages();
     bool buildQRC();
     bool buildRCC();
 private:
     void output(const QString& msg);
 
-    bool cleanImages(const bool excessiveOnly);
-    void processImage(const QString& image,const QSize& sourceSize,const QSize& targetSize,const bool crop);
+    bool processImage(const QString& image,const QSize& sourceSize,const QSize& targetSize,const bool crop);
 
     QDir _sourceFolder;
     QDir _buildFolder;
