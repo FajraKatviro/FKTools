@@ -1,5 +1,4 @@
-QT += core
-QT -= gui
+QT += core concurrent
 
 TARGET = PackageGenerator
 CONFIG += console
@@ -7,5 +6,9 @@ CONFIG -= app_bundle
 
 TEMPLATE = app
 
-SOURCES += main.cpp
+SOURCES += main.cpp \
+    PackageGenerator.cpp
+
+HEADERS += \
+    PackageGenerator.h
 
