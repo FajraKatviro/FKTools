@@ -4,6 +4,7 @@
 #include <QTextStream>
 #include <QDir>
 #include <QMap>
+#include <QSize>
 
 class QString;
 

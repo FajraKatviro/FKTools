@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
         if(!generator.cleanImages(!parser.isSet(removeImages))){
             return 3;
         }
-        if(!generator.syncImages()){
+        if(!generator.addImages()){
             return 4;
         }
     }else if(parser.isSet(removeImages)){

@@ -115,7 +115,7 @@ bool PackageGenerator::buildRCC(){
         QProcess* process=new QProcess;
         process->setProgram("rcc");
         process->setArguments(QStringList()<<"-binary"   <<path+"/package.qrc"
-                                           <<"-o"        <<path+".rcc";
+                                           <<"-o"        <<path+".rcc");
         processPool.append(process);
         output(QString("RCC task for %1 added").arg(path));
     }
@@ -128,7 +128,7 @@ bool PackageGenerator::buildRCC(){
 }
 
 void PackageGenerator::output(const QString& msg){
-    _output<<msg;
+    _output<<msg<<"\n";
 }
 
 bool PackageGenerator::cleanImages(const bool excessiveOnly){

@@ -10,7 +10,7 @@
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
-    a.setApplicationName("Imageset map generator");
+    a.setApplicationName("Imageset package manager");
     a.setApplicationVersion("1.0");
 
     const qint32 delay=3000;
