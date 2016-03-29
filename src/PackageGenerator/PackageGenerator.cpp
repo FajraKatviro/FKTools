@@ -186,7 +186,7 @@ bool PackageGenerator::processImage(const QString& image, const QSize& sourceSiz
         sourceImage=sourceImage.scaled(finalSize,Qt::IgnoreAspectRatio,Qt::SmoothTransformation);
     }
 
-    if(crop && (finalSize.width()>targetSize.width()) || finalSize.height()>targetSize.height()){
+    if(crop && (finalSize.width()>targetSize.width() || finalSize.height()>targetSize.height())){
         //if need crop
         sourceImage=sourceImage.copy((finalSize.width()-targetSize.width())/2,
                                      (finalSize.height()-targetSize.height())/2,

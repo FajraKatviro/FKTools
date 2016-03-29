@@ -1,5 +1,7 @@
 QT += core concurrent
 
+CONFIG += c++11
+
 TARGET = PackageGenerator
 CONFIG += console
 CONFIG -= app_bundle

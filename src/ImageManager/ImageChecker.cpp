@@ -9,6 +9,11 @@
 #include "../FKUtility/selectBestSizeset.h"
 #include "../FKUtility/sizeString.h"
 
+const int ImageChecker::SelfIndexRole=Qt::UserRole+1;
+const int ImageChecker::ImageCropRole=Qt::UserRole+2;
+const int ImageChecker::AutoSizeRole=Qt::UserRole+3;
+const int ImageChecker::SourceSizesRole=Qt::UserRole+4;
+
 ImageChecker::ImageChecker(QObject *parent) : QObject(parent),_model(0)
 {
     _rebuildPackageProcess=new QProcess(this);
@@ -124,7 +129,7 @@ void ImageChecker::applySettings(){
     for(qint32 r=0;r<rows;++r){
         QStandardItem* item=_model->item(r);
         QJsonObject image;
-        image["path"]=item->data(Qt::DisplayRole);
+        image["path"]=item->data(Qt::DisplayRole).toJsonValue();
         if(item->data(ImageCropRole).toBool()){
             image["crop"]=true;
         }
@@ -132,7 +137,7 @@ void ImageChecker::applySettings(){
         QJsonArray customImageSizes;
         qint32 usedSizesCount=item->rowCount();
         for(qint32 s=0;s<usedSizesCount;++s){
-            customImageSizes.append(item->child(s)->data(AutoSizeRole));
+            customImageSizes.append(item->child(s)->data(AutoSizeRole).toJsonValue());
         }
         image["usedSizes"]=customImageSizes;
         images.append(image);
