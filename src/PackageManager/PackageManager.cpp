@@ -41,6 +41,7 @@ bool PackageManager::writeData(){
 
 void PackageManager::refreshPackage(){
     QList<QString> sourceImages(_sources.keys());
+
     QJsonArray packageImages(_target.value("images").toArray());
     QJsonArray packageSizes(_target.value("sizes").toArray());
 
@@ -64,9 +65,9 @@ void PackageManager::refreshPackage(){
             //sync sizes
             QJsonArray sourceSizes=QJsonArray::fromStringList(_sources.value(image));
             imageRecord["sourceSizes"]=sourceSizes;
-            const qint32 sourceSizesCount=sourceSizes.count();
+            //const qint32 sourceSizesCount=sourceSizes.count();
             QJsonArray usedSizes=imageRecord.value("usedSizes").toArray();
-            while(usedSizes.count()>sourceSizesCount){
+            while(usedSizes.count()>sizeCount){
                 usedSizes.removeLast();
                 output(QString("Remove excessive element from usedSizes for %1 image").arg(image));
             }
@@ -76,7 +77,7 @@ void PackageManager::refreshPackage(){
                     *s="";
                 }
             }
-            while(usedSizes.count()<sourceSizesCount){
+            while(usedSizes.count()<sizeCount){
                 output(QString("Add missing element to usedSizes for %1 image").arg(image));
                 usedSizes.append("");
             }

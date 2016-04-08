@@ -93,6 +93,13 @@ Window {
                         text:modelData
                         font.pointSize: 14
                     }
+                    Button{
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.bottom: parent.bottom
+                        anchors.bottomMargin: 10
+                        text:"Remove sizeset"
+                        onClicked: imageChecker.removeSizeset(modelData)
+                    }
                 }
                 footer:Rectangle{
                     width:headerColumnWidth

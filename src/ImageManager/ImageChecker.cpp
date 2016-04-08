@@ -14,10 +14,10 @@ const int ImageChecker::ImageCropRole=Qt::UserRole+2;
 const int ImageChecker::AutoSizeRole=Qt::UserRole+3;
 const int ImageChecker::SourceSizesRole=Qt::UserRole+4;
 
-ImageChecker::ImageChecker(QObject *parent) : QObject(parent),_model(0)
+ImageChecker::ImageChecker(QObject *parent) : QObject(parent),_model(nullptr)
 {
     _rebuildPackageProcess=new QProcess(this);
-    connect(_rebuildPackageProcess,SIGNAL(finished(int)),SLOT(rebuildModel()));
+    connect(_rebuildPackageProcess,SIGNAL(finished(int)),SLOT(rebuildModel(int)));
     connect(_rebuildPackageProcess,SIGNAL(error(QProcess::ProcessError)),SLOT(refreshError()));
 }
 
@@ -30,6 +30,7 @@ void ImageChecker::setPackageFolder(const QString& arg)
 {
     if(_packageFolder!=arg){
         _packageFolder=arg;
+        _packageLoaded=false;
         emit packageFolderChanged();
         refreshPackage();
     }
@@ -54,8 +55,12 @@ void ImageChecker::refreshPackage(){
     runManager();
 }
 
-void ImageChecker::rebuildModel()
+void ImageChecker::rebuildModel(int returnCode)
 {
+    if(returnCode){
+        emit packageManagerOutput(QString("Package manager error %1 has occured").arg(QString::number(returnCode)));
+    }
+
     QString output(_rebuildPackageProcess->readAllStandardOutput());
     emit packageManagerOutput(output);
 
@@ -114,11 +119,19 @@ void ImageChecker::setPackageUrl(const QUrl url){
 }
 
 void ImageChecker::addSizeset(const QString size){
+    if(!_packageLoaded){
+        emit packageManagerOutput("Unable add sizeset, load package first");
+        return;
+    }
     applySettings();
     runManager(QStringList(size));
 }
 
 void ImageChecker::removeSizeset(const QString size){
+    if(!_packageLoaded){
+        emit packageManagerOutput("Unable remove sizeset, load package first");
+        return;
+    }
     applySettings();
     runManager(QStringList(),QStringList(size));
 }
@@ -129,7 +142,7 @@ void ImageChecker::applySettings(){
     for(qint32 r=0;r<rows;++r){
         QStandardItem* item=_model->item(r);
         QJsonObject image;
-        image["path"]=item->data(Qt::DisplayRole).toJsonValue();
+        image["path"]=item->data(Qt::DisplayRole).toString();
         if(item->data(ImageCropRole).toBool()){
             image["crop"]=true;
         }
@@ -137,7 +150,9 @@ void ImageChecker::applySettings(){
         QJsonArray customImageSizes;
         qint32 usedSizesCount=item->rowCount();
         for(qint32 s=0;s<usedSizesCount;++s){
-            customImageSizes.append(item->child(s)->data(AutoSizeRole).toJsonValue());
+            customImageSizes.append(item->child(s)->data(AutoSizeRole).toBool() ?
+                                        "" :
+                                        item->child(s)->data(Qt::DisplayRole).toString());
         }
         image["usedSizes"]=customImageSizes;
         images.append(image);
@@ -151,7 +166,7 @@ void ImageChecker::refreshError(){
     QString output=QString("Refresh error: %1").arg(QString::number(_rebuildPackageProcess->error()));
     emit packageManagerOutput(output);
 
-    rebuildModel();
+    rebuildModel(-1);
 }
 
 void ImageChecker::runManager(const QStringList& addSizes, const QStringList& removeSizes){
@@ -170,7 +185,7 @@ void ImageChecker::runManager(const QStringList& addSizes, const QStringList& re
             arguments.append(size);
         }
         foreach(QString size,removeSizes){
-            arguments.append("r");
+            arguments.append("-r");
             arguments.append(size);
         }
         _rebuildPackageProcess->start(QString("PackageManager%1").arg(platformSuffix),arguments);
@@ -190,37 +205,40 @@ QJsonObject ImageChecker::readPackageMap(){
 
     QByteArray data(dataSource.readAll());
 
-//    QByteArray data(""
-//                    "{"
-//                    ""
-//                    ""
-//                    "   \"sizes\":[\"2732x1536\",\"1024x768\"],"
-//                    ""
-//                    "   \"images\":["
-//                    "       {\"path\":\"myImg.png\","
-//                    "        \"crop\":false,"
-//                    "        \"sourceSizes\":["
-//                    "           \"2732x1536\","
-//                    "           \"400x400\""
-//                    "        ],"
-//                    "        \"usedSizes\":["
-//                    "           \"\","
-//                    "           \"400x400\""
-//                    "        ]},"
-//                    "       {\"path\":\"compressed.jpg\","
-//                    "        \"crop\":false,"
-//                    "        \"sourceSizes\":["
-//                    "           \"2732x1536\""
-//                    "        ],"
-//                    "        \"usedSizes\":["
-//                    "           \"\","
-//                    "           \"\""
-//                    "        ]}"
-//                    "   ]"
-//                    "}"
-//                    "");
+/*
+    QByteArray data(""
+                    "{"
+                    ""
+                    ""
+                    "   \"sizes\":[\"2732x1536\",\"1024x768\"],"
+                    ""
+                    "   \"images\":["
+                    "       {\"path\":\"myImg.png\","
+                    "        \"crop\":false,"
+                    "        \"sourceSizes\":["
+                    "           \"2732x1536\","
+                    "           \"400x400\""
+                    "        ],"
+                    "        \"usedSizes\":["
+                    "           \"\","
+                    "           \"400x400\""
+                    "        ]},"
+                    "       {\"path\":\"compressed.jpg\","
+                    "        \"crop\":false,"
+                    "        \"sourceSizes\":["
+                    "           \"2732x1536\""
+                    "        ],"
+                    "        \"usedSizes\":["
+                    "           \"\","
+                    "           \"\""
+                    "        ]}"
+                    "   ]"
+                    "}"
+                    "");
+*/
 
     QJsonDocument doc(QJsonDocument::fromJson(data));
+    _packageLoaded=true;
     return doc.object();
 }
 

@@ -37,21 +37,22 @@ signals:
     void isRefreshingChanged();
 public slots:
     void refreshPackage();
-    void rebuildModel();
     void setPackageUrl(const QUrl url);
     void addSizeset(const QString size);
     void removeSizeset(const QString size);
-    void applySettings();
 private slots:
     void refreshError();
+    void rebuildModel(int returnCode);
 private:
     void runManager(const QStringList& addSizes=QStringList(),const QStringList& removeSizes=QStringList());
+    void applySettings();
     QString _packageFolder;
     ImagesetModel* _model;
     QJsonObject _packageMap;
     QProcess* _rebuildPackageProcess;
     QJsonObject readPackageMap();
     bool writePackageMap();
+    bool _packageLoaded=false;
 
     static const int SelfIndexRole;
     static const int ImageCropRole;
