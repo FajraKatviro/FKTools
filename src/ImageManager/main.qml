@@ -171,9 +171,10 @@ ApplicationWindow {
                     delegate: Item {
                         width:columnWidth
                         height: rowHeight
-                        Text{
-                            anchors.centerIn: parent
-                            text:display
+                        Image{
+                            anchors.fill: parent
+                            fillMode: Image.PreserveAspectFit
+                            source: "file:///" + WorkingFolder + "/" + imageChecker.packageFolder + "/" + display + "/" + rowItem.text
                         }
                         ComboBox{
                             property var currentSize:display
@@ -184,7 +185,7 @@ ApplicationWindow {
                             }
                             model: ListModel{
                                 Component.onCompleted:{
-                                    append({"text":"auto"})
+                                    append({"text":"Auto ..... (%1)".arg(autoSizeValue)})
                                     for(var i=0;i<rowItem.avaliableSizes.length;++i){
                                         append({"text":rowItem.avaliableSizes[i]})
                                     }

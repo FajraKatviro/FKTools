@@ -15,21 +15,24 @@ const int ImageChecker::AutoSizeRole=Qt::UserRole+3;
 const int ImageChecker::SourceSizesRole=Qt::UserRole+4;
 const int ImageChecker::PackageSizeRole=Qt::UserRole+5;
 const int ImageChecker::CustomSizeRole=Qt::UserRole+6;
+const int ImageChecker::AutoSizeValueRole=Qt::UserRole+7;
 
 class CustomImageItem:public QStandardItem{
     virtual QVariant data(int role = Qt::UserRole + 1) const override{
         if(role==Qt::DisplayRole){
             if(data(ImageChecker::AutoSizeRole).toBool()){
-                QJsonArray sourseImageSizes=parent()->data(ImageChecker::SourceSizesRole).toJsonArray();
-                QList<QSize> sourceSizes;
-                for(auto s=sourseImageSizes.constBegin();s!=sourseImageSizes.constEnd();++s){
-                    sourceSizes.append(FKUtility::stringToSize((*s).toString()));
-                }
-                QSize bestSize=FKUtility::selectBestSizeset(sourceSizes,FKUtility::stringToSize(data(ImageChecker::PackageSizeRole).toString()));
-                return FKUtility::sizeToString(bestSize);
+                return data(ImageChecker::AutoSizeValueRole);
             }else{
                 return data(ImageChecker::CustomSizeRole);
             }
+        }else if(role==ImageChecker::AutoSizeValueRole){
+            QJsonArray sourseImageSizes=parent()->data(ImageChecker::SourceSizesRole).toJsonArray();
+            QList<QSize> sourceSizes;
+            for(auto s=sourseImageSizes.constBegin();s!=sourseImageSizes.constEnd();++s){
+                sourceSizes.append(FKUtility::stringToSize((*s).toString()));
+            }
+            QSize bestSize=FKUtility::selectBestSizeset(sourceSizes,FKUtility::stringToSize(data(ImageChecker::PackageSizeRole).toString()));
+            return FKUtility::sizeToString(bestSize);
         }
         return QStandardItem::data(role);
     }
@@ -103,6 +106,7 @@ void ImageChecker::rebuildModel(int returnCode)
     roleNames[AutoSizeRole]="autoSize";
     roleNames[SourceSizesRole]="sourceSizes";
     roleNames[CustomSizeRole]="customSize";
+    roleNames[AutoSizeValueRole]="autoSizeValue";
     _model->setItemRoleNames(roleNames);
 
     QStringList targetImageSizes(sizes());

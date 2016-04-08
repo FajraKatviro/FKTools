@@ -60,6 +60,7 @@ private:
     static const int SourceSizesRole;
     static const int PackageSizeRole;
     static const int CustomSizeRole;
+    static const int AutoSizeValueRole;
     friend class CustomImageItem;
 };
 Q_DECLARE_METATYPE(ImagesetModel*)
