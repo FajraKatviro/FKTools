@@ -128,6 +128,7 @@ Window {
             width:mainView.width
             property string text:display
             property var childIndex:selfIndex
+            property var avaliableSizes:sourceSizes
             ListView{
                 anchors.fill: parent
                 orientation: Qt.Horizontal
@@ -167,6 +168,42 @@ Window {
                         Text{
                             anchors.centerIn: parent
                             text:display
+                        }
+                        ComboBox{
+                            property var currentSize:display
+                            anchors{
+                                left:parent.left
+                                right:parent.right
+                                bottom: parent.bottom
+                            }
+                            model: ListModel{
+                                Component.onCompleted:{
+                                    append({"text":"auto"})
+                                    for(var i=0;i<rowItem.avaliableSizes.length;++i){
+                                        append({"text":rowItem.avaliableSizes[i]})
+                                    }
+                                }
+                            }
+                            Component.onCompleted:{
+                                selectIndex()
+                                onCurrentSizeChanged.connect(function(){
+                                    selectIndex()
+                                })
+                                onCurrentIndexChanged.connect(function(){
+                                    if(currentIndex===0)
+                                        autoSize=true
+                                    else{
+                                        customSize=currentText
+                                        autoSize=false
+                                    }
+                                })
+                            }
+                            function selectIndex(){
+                                if(autoSize)
+                                    currentIndex=0
+                                else
+                                    currentIndex=find(customSize)
+                            }
                         }
                     }
                     rootIndex: rowItem.childIndex

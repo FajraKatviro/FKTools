@@ -13,6 +13,29 @@ const int ImageChecker::SelfIndexRole=Qt::UserRole+1;
 const int ImageChecker::ImageCropRole=Qt::UserRole+2;
 const int ImageChecker::AutoSizeRole=Qt::UserRole+3;
 const int ImageChecker::SourceSizesRole=Qt::UserRole+4;
+const int ImageChecker::PackageSizeRole=Qt::UserRole+5;
+const int ImageChecker::CustomSizeRole=Qt::UserRole+6;
+
+class CustomImageItem:public QStandardItem{
+    virtual QVariant data(int role = Qt::UserRole + 1) const override{
+        if(role==Qt::DisplayRole){
+            if(data(ImageChecker::AutoSizeRole).toBool()){
+                QJsonArray sourseImageSizes=parent()->data(ImageChecker::SourceSizesRole).toJsonArray();
+                QList<QSize> sourceSizes;
+                for(auto s=sourseImageSizes.constBegin();s!=sourseImageSizes.constEnd();++s){
+                    sourceSizes.append(FKUtility::stringToSize((*s).toString()));
+                }
+                QSize bestSize=FKUtility::selectBestSizeset(sourceSizes,FKUtility::stringToSize(data(ImageChecker::PackageSizeRole).toString()));
+                return FKUtility::sizeToString(bestSize);
+            }else{
+                return data(ImageChecker::CustomSizeRole);
+            }
+        }
+        return QStandardItem::data(role);
+    }
+public:
+    CustomImageItem(const QString& text):QStandardItem(text){}
+};
 
 ImageChecker::ImageChecker(QObject *parent) : QObject(parent),_model(nullptr)
 {
@@ -73,6 +96,8 @@ void ImageChecker::rebuildModel(int returnCode)
     roleNames[SelfIndexRole]="selfIndex";
     roleNames[ImageCropRole]="imageCrop";
     roleNames[AutoSizeRole]="autoSize";
+    roleNames[SourceSizesRole]="sourceSizes";
+    roleNames[CustomSizeRole]="customSize";
     _model->setItemRoleNames(roleNames);
 
     QStringList targetImageSizes(sizes());
@@ -93,16 +118,13 @@ void ImageChecker::rebuildModel(int returnCode)
             sourceSizes.append(FKUtility::stringToSize((*s).toString()));
         }
         for(qint32 i=0;i<sizeCount;++i){
-            bool autoSize=false;
             QString imageSize=customImageSizes.at(i).toString();
-            if(imageSize.isEmpty()){
-                autoSize=true;
-                QSize bestSize=FKUtility::selectBestSizeset(sourceSizes,FKUtility::stringToSize(targetImageSizes.at(i)));
-                imageSize=FKUtility::sizeToString(bestSize);
-            }
-            QStandardItem* imageSizeItem=new QStandardItem(imageSize);
-            imageSizeItem->setData(autoSize,AutoSizeRole);
+            QStandardItem* imageSizeItem=new CustomImageItem(imageSize);
             row->appendRow(imageSizeItem);
+            imageSizeItem->setData(targetImageSizes.at(i),PackageSizeRole);
+            imageSizeItem->setData(imageSize.isEmpty(),AutoSizeRole);
+            if(imageSize.isEmpty())imageSize=imageSizeItem->data(Qt::DisplayRole).toString();
+            imageSizeItem->setData(imageSize,CustomSizeRole);
         }
         _model->appendRow(row);
         row->setData(row->index(),SelfIndexRole);

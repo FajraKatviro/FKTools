@@ -58,6 +58,9 @@ private:
     static const int ImageCropRole;
     static const int AutoSizeRole;
     static const int SourceSizesRole;
+    static const int PackageSizeRole;
+    static const int CustomSizeRole;
+    friend class CustomImageItem;
 };
 Q_DECLARE_METATYPE(ImagesetModel*)
 

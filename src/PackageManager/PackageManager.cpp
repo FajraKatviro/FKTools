@@ -139,7 +139,7 @@ void PackageManager::removeSizeset(const QString& size){
             }
             _target["images"]=images;
             output(QString("Sizeset %1 removed").arg(size));
-            break;
+            return;
         }
     }
     output(QString("Unable remove %1 sizeset (does not exists)").arg(size));
