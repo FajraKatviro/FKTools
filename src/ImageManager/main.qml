@@ -7,7 +7,7 @@ import QtQuick.Dialogs 1.2
 
 import imageManager 1.0
 
-Window {
+ApplicationWindow {
     visible: true
     width:1200
     height:800
@@ -24,15 +24,25 @@ Window {
     ImageChecker{
         id:imageChecker
         onPackageManagerOutput: logOutput.append(output)
-        //Component.onCompleted: refreshPackage()
     }
 
-    ListView{
-        id:mainView
+    menuBar: MenuBar {
+        Menu {
+            title: "Package"
+            MenuItem { text: "Load..."; shortcut: StandardKey.Open; onTriggered: pathSelector.open() }
+            MenuItem { text: "Save"; shortcut: StandardKey.Save; onTriggered: imageChecker.refreshPackage() }
+        }
+    }
+
+    Rectangle{
         anchors.fill: parent
-        header: headerDelegate
-        delegate: rowDelegate
-        model:imageChecker.model
+        ListView{
+            id:mainView
+            anchors.fill: parent
+            header: headerDelegate
+            delegate: rowDelegate
+            model:imageChecker.model
+        }
     }
 
     FileDialog{
@@ -75,11 +85,7 @@ Window {
                     radius:commonRadius
                     Text{
                         anchors.centerIn: parent
-                        text:imageChecker.packageFolder == "" ? "Select package folder" : imageChecker.packageFolder
-                    }
-                    MouseArea{
-                        anchors.fill: parent
-                        onClicked: pathSelector.open()
+                        text:imageChecker.packageFolder == "" ? "Load package to start" : imageChecker.packageFolder
                     }
                 }
                 delegate: Rectangle {

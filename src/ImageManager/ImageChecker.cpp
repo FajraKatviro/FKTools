@@ -55,7 +55,7 @@ void ImageChecker::setPackageFolder(const QString& arg)
         _packageFolder=arg;
         _packageLoaded=false;
         emit packageFolderChanged();
-        refreshPackage();
+        runManager();
     }
 }
 
@@ -75,6 +75,11 @@ bool ImageChecker::isRefreshing() const
 }
 
 void ImageChecker::refreshPackage(){
+    if(!_packageLoaded){
+        emit packageManagerOutput("Unable save package, load package first");
+        return;
+    }
+    applySettings();
     runManager();
 }
 
