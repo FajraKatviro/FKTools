@@ -31,6 +31,7 @@ ApplicationWindow {
             title: "Package"
             MenuItem { text: "Load..."; shortcut: StandardKey.Open; onTriggered: pathSelector.open() }
             MenuItem { text: "Save"; shortcut: StandardKey.Save; onTriggered: imageChecker.refreshPackage() }
+            MenuItem { text: "Spawn..."; shortcut: StandardKey.New; onTriggered: targetSelector.open() }
         }
     }
 
@@ -53,6 +54,16 @@ ApplicationWindow {
         selectExisting: true
         selectMultiple: false
         onAccepted: imageChecker.setPackageUrl(fileUrl)
+    }
+
+    FileDialog{
+        id:targetSelector
+        title:"Choose target folder"
+        folder:".."
+        selectFolder: true
+        selectExisting: true
+        selectMultiple: false
+        onAccepted: imageChecker.spawnPackage(fileUrl)
     }
 
     Dialog{
@@ -149,8 +160,10 @@ ApplicationWindow {
                         anchors.centerIn: parent
                         Text{
                             id:imageName
+                            width:headerColumnWidth - 10
                             text: rowItem.text
                             font.pointSize: 14
+                            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                         }
                         CheckBox{
                             id:cropCheckbox

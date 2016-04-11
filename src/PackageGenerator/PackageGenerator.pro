@@ -1,5 +1,7 @@
 QT += core concurrent
 
+DESTDIR = $$PWD/../../bin
+
 CONFIG += c++11
 
 TARGET = PackageGenerator

@@ -24,11 +24,13 @@ int main(int argc, char *argv[])
     QCommandLineOption addImages("add","Add and process (rescale & crop) missing images");
     QCommandLineOption qrc("qrc","Create package.qrc files");
     QCommandLineOption rcc("rcc","Create binary resources (run Qt resource compiler)");
+    QCommandLineOption dir("dir","Run for nested folders (assume provided location of multiple packages)");
     QCommandLineOption runningDelay("d",QString("Wait %1 ms before execution").arg(QString::number(delay)));
     parser.addOption(removeImages);
     parser.addOption(addImages);
     parser.addOption(qrc);
     parser.addOption(rcc);
+    parser.addOption(dir);
     parser.addOption(runningDelay);
 
     parser.addPositionalArgument("source","Project folder containing source images");
@@ -45,33 +47,43 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    PackageGenerator generator(arguments.at(0),arguments.at(1));
-    if(!generator.readSetting()){
-        return 2;
+    QStringList subfolders;
+    if(parser.isSet(dir)){
+        QDir sourceDir(arguments.at(0));
+        subfolders=sourceDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+    }else{
+        subfolders<<".";
     }
 
-    if(parser.isSet(addImages)){
-        if(!generator.cleanImages(!parser.isSet(removeImages))){
-            return 3;
+    foreach(QString subfolder,subfolders){
+        PackageGenerator generator(arguments.at(0)+"/"+subfolder,arguments.at(1)+"/"+subfolder);
+        if(!generator.readSetting()){
+            return 2;
         }
-        if(!generator.addImages()){
-            return 4;
-        }
-    }else if(parser.isSet(removeImages)){
-        if(!generator.cleanImages(false)){
-            return 3;
-        }
-    }
 
-    if(parser.isSet(qrc)){
-        if(!generator.buildQRC()){
-            return 5;
+        if(parser.isSet(addImages)){
+            if(!generator.cleanImages(!parser.isSet(removeImages))){
+                return 3;
+            }
+            if(!generator.addImages()){
+                return 4;
+            }
+        }else if(parser.isSet(removeImages)){
+            if(!generator.cleanImages(false)){
+                return 3;
+            }
         }
-    }
 
-    if(parser.isSet(rcc)){
-        if(!generator.buildRCC()){
-            return 6;
+        if(parser.isSet(qrc)){
+            if(!generator.buildQRC()){
+                return 5;
+            }
+        }
+
+        if(parser.isSet(rcc)){
+            if(!generator.buildRCC()){
+                return 6;
+            }
         }
     }
 

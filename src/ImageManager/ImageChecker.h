@@ -40,11 +40,13 @@ public slots:
     void setPackageUrl(const QUrl url);
     void addSizeset(const QString size);
     void removeSizeset(const QString size);
+    void spawnPackage(const QUrl url);
 private slots:
     void refreshError();
     void rebuildModel(int returnCode);
 private:
     void runManager(const QStringList& addSizes=QStringList(),const QStringList& removeSizes=QStringList());
+    void runGenerator(const QString& targetPath,const QStringList& args=QStringList());
     void applySettings();
     QString _packageFolder;
     ImagesetModel* _model;

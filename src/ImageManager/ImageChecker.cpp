@@ -167,6 +167,14 @@ void ImageChecker::removeSizeset(const QString size){
     runManager(QStringList(),QStringList(size));
 }
 
+void ImageChecker::spawnPackage(const QUrl url){
+    if(!_packageLoaded){
+        emit packageManagerOutput("Unable spawn package, load package first");
+        return;
+    }
+    runGenerator(url.toLocalFile(),QStringList("--add"));
+}
+
 void ImageChecker::applySettings(){
     qint32 rows=_model->rowCount();
     QJsonArray images;
@@ -222,6 +230,19 @@ void ImageChecker::runManager(const QStringList& addSizes, const QStringList& re
         _rebuildPackageProcess->start(QString("PackageManager%1").arg(platformSuffix),arguments);
         emit isRefreshingChanged();
     }
+}
+
+void ImageChecker::runGenerator(const QString& targetPath, const QStringList& args)
+{
+    QString platformSuffix;
+#ifdef Q_OS_WIN32
+    platformSuffix=".exe";
+#endif
+    QStringList commandArgs(_packageFolder);
+    commandArgs<<targetPath<<args;
+    emit packageManagerOutput(commandArgs.join(' '));
+    bool a=QProcess::startDetached(QString("PackageGenerator%1").arg(platformSuffix),commandArgs);
+    if(!a)packageManagerOutput("failed");
 }
 
 QJsonObject ImageChecker::readPackageMap(){
