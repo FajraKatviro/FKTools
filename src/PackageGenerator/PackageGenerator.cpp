@@ -18,7 +18,7 @@
 #include <cmath>
 
 PackageGenerator::PackageGenerator(const QString& sourcePath, const QString& buildPath)
-    :_sourceFolder(sourcePath),_buildFolder(buildPath),_output(stdout){
+    :_sourceFolder(QDir::cleanPath(sourcePath)),_buildFolder(buildPath),_output(stdout){
 
 }
 
@@ -83,7 +83,7 @@ bool PackageGenerator::buildQRC(){
             QXmlStreamWriter xml(&qrc);
             xml.writeStartElement("RCC");
                 xml.writeStartElement("qresource");
-                    xml.writeAttribute("prefix",_sourceFolder.dirName());
+                    xml.writeAttribute("prefix","/"+_sourceFolder.dirName());
                     for(QMap<QString,ImageSetting>::ConstIterator i=_imageSettings.constBegin();i!=_imageSettings.constEnd();++i){
                         xml.writeTextElement("file",i.key());
                     }

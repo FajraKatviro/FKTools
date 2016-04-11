@@ -173,6 +173,7 @@ void ImageChecker::spawnPackage(const QUrl url){
         return;
     }
     QStringList args("--add");
+    //args<<"--qrc"<<"--rcc";
     runGenerator(url.toLocalFile(),args);
 }
 
