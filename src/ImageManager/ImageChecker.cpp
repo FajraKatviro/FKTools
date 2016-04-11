@@ -172,7 +172,8 @@ void ImageChecker::spawnPackage(const QUrl url){
         emit packageManagerOutput("Unable spawn package, load package first");
         return;
     }
-    runGenerator(url.toLocalFile(),QStringList("--add"));
+    QStringList args("--add");
+    runGenerator(url.toLocalFile(),args);
 }
 
 void ImageChecker::applySettings(){
@@ -240,9 +241,7 @@ void ImageChecker::runGenerator(const QString& targetPath, const QStringList& ar
 #endif
     QStringList commandArgs(_packageFolder);
     commandArgs<<targetPath<<args;
-    emit packageManagerOutput(commandArgs.join(' '));
-    bool a=QProcess::startDetached(QString("PackageGenerator%1").arg(platformSuffix),commandArgs);
-    if(!a)packageManagerOutput("failed");
+    QProcess::startDetached(QString("PackageGenerator%1").arg(platformSuffix),commandArgs);
 }
 
 QJsonObject ImageChecker::readPackageMap(){
