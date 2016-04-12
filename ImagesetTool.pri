@@ -1,10 +1,13 @@
 
-#checkImagesetsStep.commands = bin/PackageManager
+checkImagesetsStep.commands = bin/PackageManager $$ART_FOLDER --dir
+generateImagesetsStep.commands = bin/PackageGenerator  $$ART_FOLDER $$ART_BUILD_FOLDER --clean --add --qrc --rcc --dir
 
-#generateImagesetsStep.commands = bin/PackageGenerator
-#generateImagesetsStep.depends = checkImagesetsStep
+CONFIG(buildImagePackages){
+    generateImagesetsStep.depends = checkImagesetsStep
+    first.depends += generateImagesetsStep
 
-#buildImagesetsStep.commands = rcc
-#buildImagesetsStep.depends = generateImagesetsStep
+    artPackages.files = $$ART_BUILD_FOLDER/bin/*
+    artPackages.path = /
+    INSTALLS += artPackages
+}
 
-#first.depends += buildImagesetsStep

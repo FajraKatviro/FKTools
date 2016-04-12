@@ -112,10 +112,11 @@ bool PackageGenerator::buildRCC(){
     QList<QProcess*> processPool;
     for(qint32 s=0;s<_targetSizes.size();++s){
         QString path=QString("%1/%2").arg(_buildFolder.path()).arg(FKUtility::sizeToString(_targetSizes.at(s)));
+        QString target=QString("%1/../bin/%2/%3.rcc").arg(_buildFolder.path()).arg(_sourceFolder.dirName()).arg(FKUtility::sizeToString(_targetSizes.at(s)));
         QProcess* process=new QProcess;
         process->setProgram("rcc");
         process->setArguments(QStringList()<<"-binary"   <<path+"/package.qrc"
-                                           <<"-o"        <<path+".rcc");
+                                           <<"-o"        <<target);
         processPool.append(process);
         output(QString("RCC task for %1 added").arg(path));
     }

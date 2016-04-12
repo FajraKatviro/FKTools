@@ -6,7 +6,7 @@
 #include <QJsonDocument>
 
 PackageManager::PackageManager(const QString& path):
-    _folder(path),_output(stdout){
+    _folder(QDir::cleanPath(path)),_output(stdout){
 
 }
 

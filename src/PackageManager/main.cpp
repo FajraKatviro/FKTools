@@ -22,9 +22,11 @@ int main(int argc, char *argv[])
 
     QCommandLineOption addSizeset("a","Add sizeset","size");
     QCommandLineOption removeSizeset("r","Remove sizeset","size");
+    QCommandLineOption dir("dir","Run for nested folders (assume provided location of multiple packages)");
     QCommandLineOption runningDelay("d",QString("Wait %1 ms before execution").arg(QString::number(delay)));
     parser.addOption(addSizeset);
     parser.addOption(removeSizeset);
+    parser.addOption(dir);
     parser.addOption(runningDelay);
 
     parser.addPositionalArgument("target","Target folder containing source images");
@@ -40,24 +42,34 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    PackageManager package(arguments.at(0));
-    if(!package.readData()){
-        return 2;
+    QStringList subfolders;
+    if(parser.isSet(dir)){
+        QDir sourceDir(arguments.at(0));
+        subfolders=sourceDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+    }else{
+        subfolders<<".";
     }
 
-    QStringList sizesToRemove = parser.values(removeSizeset);
-    if(!sizesToRemove.isEmpty()){
-        foreach(QString size,sizesToRemove)package.removeSizeset(size);
-    }
-    QStringList sizesToAdd    = parser.values(addSizeset);
-    if(!sizesToAdd.isEmpty()){
-        foreach(QString size,sizesToAdd)package.addSizeset(size);
-    }
+    foreach(QString subfolder,subfolders){
+        PackageManager package(arguments.at(0)+"/"+subfolder);
+        if(!package.readData()){
+            return 2;
+        }
 
-    package.refreshPackage();
+        QStringList sizesToRemove = parser.values(removeSizeset);
+        if(!sizesToRemove.isEmpty()){
+            foreach(QString size,sizesToRemove)package.removeSizeset(size);
+        }
+        QStringList sizesToAdd    = parser.values(addSizeset);
+        if(!sizesToAdd.isEmpty()){
+            foreach(QString size,sizesToAdd)package.addSizeset(size);
+        }
 
-    if(!package.writeData()){
-        return 3;
+        package.refreshPackage();
+
+        if(!package.writeData()){
+            return 3;
+        }
     }
 
     return 0;
