@@ -137,7 +137,6 @@ void PackageGenerator::output(const QString& msg){
 bool PackageGenerator::cleanImages(const bool excessiveOnly){
     output("Clean images");
     if(!excessiveOnly){
-        output(_buildFolder.absolutePath());
         return _buildFolder.removeRecursively() && _buildFolder.mkpath(".");
     }else{
         QStringList sizes=_buildFolder.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
