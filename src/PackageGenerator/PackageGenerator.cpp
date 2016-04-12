@@ -112,7 +112,9 @@ bool PackageGenerator::buildRCC(){
     QList<QProcess*> processPool;
     for(qint32 s=0;s<_targetSizes.size();++s){
         QString path=QString("%1/%2").arg(_buildFolder.path()).arg(FKUtility::sizeToString(_targetSizes.at(s)));
-        QString target=QString("%1/../bin/%2/%3.rcc").arg(_buildFolder.path()).arg(_sourceFolder.dirName()).arg(FKUtility::sizeToString(_targetSizes.at(s)));
+        QString targetPath=QString("%1/../bin/%2").arg(_buildFolder.path()).arg(_sourceFolder.dirName());
+        QString target=QString("%1/%3.rcc").arg(targetPath).arg(FKUtility::sizeToString(_targetSizes.at(s)));
+        QDir().mkpath(targetPath);
         QProcess* process=new QProcess;
         process->setProgram("rcc");
         process->setArguments(QStringList()<<"-binary"   <<path+"/package.qrc"
@@ -135,7 +137,8 @@ void PackageGenerator::output(const QString& msg){
 bool PackageGenerator::cleanImages(const bool excessiveOnly){
     output("Clean images");
     if(!excessiveOnly){
-        return _buildFolder.removeRecursively() && _buildFolder.mkdir(".");
+        output(_buildFolder.absolutePath());
+        return _buildFolder.removeRecursively() && _buildFolder.mkpath(".");
     }else{
         QStringList sizes=_buildFolder.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
         foreach(QString size,sizes){
