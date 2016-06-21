@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
     }
 
     foreach(QString subfolder,subfolders){
-        PackageGenerator generator(arguments.at(0)+"/"+subfolder,arguments.at(1)+"/"+subfolder);
+        PackageGenerator generator(arguments.at(0)+"/"+subfolder,arguments.at(1)+"/img/"+subfolder);
         if(!generator.readSetting()){
             return 2;
         }
