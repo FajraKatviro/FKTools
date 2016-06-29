@@ -7,11 +7,38 @@
 
 #include "PackageGenerator.h"
 
+bool copyRecursive(const QDir& source,const QDir& target){
+    auto list=source.entryList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot);
+    for(auto i=list.constBegin();i!=list.constEnd();++i){
+        QString sourceItem(source.filePath(*i));
+        QString targetItem(target.filePath(*i));
+        if(QFileInfo(sourceItem).isFile()){
+            QFile oldFile(targetItem);
+            if(oldFile.exists()){
+                oldFile.remove();
+            }
+            if(!QFile::copy(sourceItem,targetItem)){
+                return false;
+            }
+        }else{
+            QDir oldDir(targetItem);
+            if(oldDir.exists()){
+                oldDir.removeRecursively();
+            }
+            if(!target.mkdir(*i)){
+                return false;
+            }
+            return copyRecursive(QDir(sourceItem),QDir(targetItem));
+        }
+    }
+    return true;
+}
+
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
     a.setApplicationName("Imageset package generator");
-    a.setApplicationVersion("1.0");
+    a.setApplicationVersion("1.1");
 
     const qint32 delay=3000;
 
@@ -35,6 +62,7 @@ int main(int argc, char *argv[])
 
     parser.addPositionalArgument("source","Project folder containing source images");
     parser.addPositionalArgument("target","Build folder containing resource build files");
+    parser.addPositionalArgument("[deployFolder]","Folder to copy target files");
 
     parser.process(a);
 
@@ -43,20 +71,29 @@ int main(int argc, char *argv[])
     }
 
     QStringList arguments(parser.positionalArguments());
-    if(arguments.size()!=2){
+
+    if(arguments.size()<2 || arguments.size()>3){
         return 1;
+    }
+
+    QString source(arguments.at(0));
+    QString target(arguments.at(1));
+
+    QString deployFolder;
+    if(arguments.size()>2){
+        deployFolder=arguments.at(2);
     }
 
     QStringList subfolders;
     if(parser.isSet(dir)){
-        QDir sourceDir(arguments.at(0));
+        QDir sourceDir(source);
         subfolders=sourceDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
     }else{
         subfolders<<".";
     }
 
     foreach(QString subfolder,subfolders){
-        PackageGenerator generator(arguments.at(0)+"/"+subfolder,arguments.at(1)+"/img/"+subfolder);
+        PackageGenerator generator(source+"/"+subfolder,target+"/img/"+subfolder);
         if(!generator.readSetting()){
             return 2;
         }
@@ -84,6 +121,19 @@ int main(int argc, char *argv[])
             if(!generator.buildRCC()){
                 return 6;
             }
+        }
+    }
+
+    if(!deployFolder.isEmpty()){
+        QDir deployDir(deployFolder);
+        if(!deployDir.exists()){
+            if(!deployDir.mkpath(".")){
+                return 7;
+            }
+        }
+        if(!copyRecursive(QDir(target+"/bin/"),QDir(deployFolder))){
+
+            return 8;
         }
     }
 
