@@ -15,7 +15,7 @@ mac{
             "cp -r $$ART_BUILD_FOLDER/bin/* $CODESIGNING_FOLDER_PATH/"
     }else{
         QMAKE_POST_LINK += \
-            "cp -r $$ART_BUILD_FOLDER/bin/* $$OUT_PWD/$${TARGET}.app/"
+            "cp -r $$ART_BUILD_FOLDER/bin/* $$DESTDIR/$${TARGET}.app/Contents/Resources"
     }
 }
 
