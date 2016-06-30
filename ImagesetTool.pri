@@ -9,9 +9,9 @@ win32{
 }
 
 mac{
-    artPackages.files += $$ART_BUILD_FOLDER/bin/*
-    artPackages.path = Contents/Resources
-    QMAKE_BUNDLE_DATA += artPackages
+     !isEmpty(QMAKE_POST_LINK): QMAKE_POST_LINK += ";"
+     QMAKE_POST_LINK += \
+         "cp -r $$ART_BUILD_FOLDER/bin/* $$DESTDIR/$${TARGET}.app/Contents/Resources"
 }
 
 imagesets.commands = "$$PWD/bin/PackageManager" "$$ART_FOLDER" --dir $$escape_expand(\n\t) \
