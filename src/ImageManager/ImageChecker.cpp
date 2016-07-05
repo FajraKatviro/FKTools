@@ -5,6 +5,7 @@
 #include <QProcess>
 #include <QFile>
 #include <QDir>
+#include <QTextStream>
 
 #include "../FKUtility/selectBestSizeset.h"
 #include "../FKUtility/sizeString.h"
@@ -175,6 +176,59 @@ void ImageChecker::spawnPackage(const QUrl url){
     QStringList args("--add");
     //args<<"--qrc"<<"--rcc";
     runGenerator(url.toLocalFile(),args);
+}
+
+void ImageChecker::spawnImage(const QUrl source, const QUrl target, const QString templateName){
+
+    emit packageManagerOutput(QString("Start spawn image"));
+
+    QImage sourceImage(source.toLocalFile());
+    QDir targetDir(target.toLocalFile());
+
+    QFile templateFile(":/deployTemplates/" + templateName);
+    if(!templateFile.open(QIODevice::ReadOnly)){
+        emit packageManagerOutput(QString("Unable open template %1").arg(templateName));
+        return;
+    }
+    QTextStream textStream(&templateFile);
+
+    bool success = false;
+
+    while (true){
+        QString token(textStream.readLine());
+        if (token.isNull()){
+            break;
+        }
+
+        QStringList args(token.split(':'));
+        QString targetName(args.takeFirst());
+        if(args.isEmpty()){
+            emit packageManagerOutput(QString("Invalid template %1 (no size provided). Operation interrupted").arg(templateName));
+            return;
+        }
+
+        qint32 width = args.takeFirst().toInt();
+        qint32 height = args.isEmpty() ? width : args.takeFirst().toInt();
+        if(width<=0 || height<=0){
+            emit packageManagerOutput(QString("Invalid template %1 (invalid size provided). Operation interrupted").arg(templateName));
+            return;
+        }
+
+        if(!args.isEmpty()){
+            emit packageManagerOutput(QString("Invalid template %1 (excessive symbols provided). Operation interrupted").arg(templateName));
+            return;
+        }
+
+        QImage targetImage(sourceImage.scaled(width,height,Qt::IgnoreAspectRatio,Qt::SmoothTransformation));
+        if(!targetImage.save(targetDir.filePath(targetName),"PNG")){
+            emit packageManagerOutput(QString("Failed write %1").arg(targetDir.filePath(targetName)));
+        }else{
+            success = true;
+        }
+    }
+
+    if(success)emit packageManagerOutput(QString("Image spawned to %1").arg(targetDir.absolutePath()));
+
 }
 
 void ImageChecker::applySettings(){

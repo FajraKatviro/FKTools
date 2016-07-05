@@ -41,6 +41,7 @@ public slots:
     void addSizeset(const QString size);
     void removeSizeset(const QString size);
     void spawnPackage(const QUrl url);
+    void spawnImage(const QUrl source, const QUrl target, const QString templateName);
 private slots:
     void refreshError();
     void rebuildModel(int returnCode);

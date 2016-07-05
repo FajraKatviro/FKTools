@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>deployTemplates/icons</file>
+        <file>deployTemplates/splashscreens</file>
+    </qresource>
+</RCC>

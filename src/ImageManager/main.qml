@@ -33,6 +33,11 @@ ApplicationWindow {
             MenuItem { text: "Save"; shortcut: StandardKey.Save; onTriggered: imageChecker.refreshPackage() }
             MenuItem { text: "Spawn..."; shortcut: StandardKey.New; onTriggered: targetSelector.open() }
         }
+        Menu {
+            title: "Deploy images"
+            MenuItem { text: "iOS icons"; onTriggered: deployImageCreationRequest.newRequest("icons") }
+            MenuItem { text: "iOS splash screens";  onTriggered: deployImageCreationRequest.newRequest("splashscreens") }
+        }
     }
 
     Rectangle{
@@ -245,5 +250,46 @@ ApplicationWindow {
         text:!logOutput.visible ? "Show log" : "Hide log"
         onClicked: logOutput.visible = !logOutput.visible
     }
+
+    //deploy image creation
+    QtObject{
+        id: deployImageCreationRequest
+        property string imageTemplate
+        property url deployImageSource
+        property url deployImageTarget
+        function newRequest(templateName){
+            imageTemplate = templateName
+            iconSelector.open()
+        }
+        function createImages(){
+            imageChecker.spawnImage(deployImageSource,deployImageTarget,imageTemplate)
+        }
+    }
+
+    FileDialog{
+        id:iconSelector
+        title:"Choose source image"
+        folder:".."
+        selectExisting: true
+        selectMultiple: false
+        onAccepted: {
+            deployImageCreationRequest.deployImageSource = fileUrl
+            iconTargetFolderSelector.open()
+        }
+    }
+
+    FileDialog{
+        id:iconTargetFolderSelector
+        title:"Choose target folder"
+        folder:".."
+        selectFolder: true
+        selectExisting: true
+        selectMultiple: false
+        onAccepted: {
+            deployImageCreationRequest.deployImageTarget = fileUrl
+            deployImageCreationRequest.createImages()
+        }
+    }
+
 }
 

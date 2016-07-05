@@ -1,6 +1,10 @@
 
-!defined(ART_FOLDER,var):ART_FOLDER = $$PWD/../art
-!defined(ART_BUILD_FOLDER,var):ART_BUILD_FOLDER = $$PWD/../resourceBuild
+isEmpty(ART_FOLDER){
+    error("ART_FOLDER is not set")
+}
+isEmpty(ART_BUILD_FOLDER){
+    error("ART_BUILD_FOLDER is not set")
+}
 
 ART_DEPLOY_FOLDER =
 
