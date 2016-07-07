@@ -16,3 +16,5 @@ SOURCES += main.cpp \
 HEADERS += \
     PackageGenerator.h
 
+
+include(../deployment.pri)

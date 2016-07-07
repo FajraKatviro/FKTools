@@ -15,3 +15,5 @@ SOURCES += main.cpp \
 HEADERS += \
     PackageManager.h
 
+
+include(../deployment.pri)
