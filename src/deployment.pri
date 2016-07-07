@@ -1,6 +1,6 @@
 
 mac{
-    target.path = $(HOME)/Applications/FKTools
+    target.path = "/$(HOME)/Applications/FKTools"
     export(target.path)
 }
 

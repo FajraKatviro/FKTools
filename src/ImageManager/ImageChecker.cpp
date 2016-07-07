@@ -3,6 +3,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QProcess>
+#include <QProcessEnvironment>
 #include <QFile>
 #include <QDir>
 #include <QTextStream>
@@ -257,6 +258,16 @@ void ImageChecker::applySettings(){
     writePackageMap();
 }
 
+QString ImageChecker::toolsFolder() const{
+#ifdef Q_OS_MAC
+    return QProcessEnvironment::systemEnvironment().value("HOME") + "/Applications/FKTools";
+#elif defined(Q_OS_WIN32)
+    return QProcessEnvironment::systemEnvironment().value("APPDATA") + "/FKTools";
+#else
+    return "";
+#endif
+}
+
 void ImageChecker::refreshError(){
     QString output=QString("Refresh error: %1").arg(QString::number(_rebuildPackageProcess->error()));
     emit packageManagerOutput(output);
@@ -283,7 +294,7 @@ void ImageChecker::runManager(const QStringList& addSizes, const QStringList& re
             arguments.append("-r");
             arguments.append(size);
         }
-        _rebuildPackageProcess->start(QString("PackageManager%1").arg(platformSuffix),arguments);
+        _rebuildPackageProcess->start(QString("%2/PackageManager%1").arg(platformSuffix).arg(toolsFolder()),arguments);
         emit isRefreshingChanged();
     }
 }
@@ -296,7 +307,7 @@ void ImageChecker::runGenerator(const QString& targetPath, const QStringList& ar
 #endif
     QStringList commandArgs(_packageFolder);
     commandArgs<<targetPath<<args;
-    QProcess::startDetached(QString("PackageGenerator%1").arg(platformSuffix),commandArgs);
+    QProcess::startDetached(QString("%2/PackageGenerator%1").arg(platformSuffix).arg(toolsFolder()),commandArgs);
 }
 
 QJsonObject ImageChecker::readPackageMap(){

@@ -49,6 +49,7 @@ private:
     void runManager(const QStringList& addSizes=QStringList(),const QStringList& removeSizes=QStringList());
     void runGenerator(const QString& targetPath,const QStringList& args=QStringList());
     void applySettings();
+    QString toolsFolder()const;
     QString _packageFolder;
     ImagesetModel* _model;
     QJsonObject _packageMap;
