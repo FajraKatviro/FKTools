@@ -11,8 +11,8 @@
 
 #include <QImage>
 
-#include "../FKUtility/sizeString.h"
-#include "../FKUtility/selectBestSizeset.h"
+#include "sizeString.h"
+#include "selectBestSizeset.h"
 #include <algorithm>
 #include <limits>
 #include <cmath>

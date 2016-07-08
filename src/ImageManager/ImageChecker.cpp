@@ -8,8 +8,8 @@
 #include <QDir>
 #include <QTextStream>
 
-#include "../FKUtility/selectBestSizeset.h"
-#include "../FKUtility/sizeString.h"
+#include "selectBestSizeset.h"
+#include "sizeString.h"
 
 const int ImageChecker::SelfIndexRole=Qt::UserRole+1;
 const int ImageChecker::ImageCropRole=Qt::UserRole+2;
