@@ -1,3 +1,3 @@
-[submodule "FKUtility"]
-	path = src/FKUtility
-	url = https://github.com/FajraKatviro/FKUtility.git
+[submodule "FKUtils"]
+	path = FKUtils
+	url = https://github.com/FajraKatviro/FKUtils.git
