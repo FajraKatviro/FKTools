@@ -9,6 +9,6 @@ Installation:
   - configure project (src/FKTools.pro) with QtCreator
   - add 'make install' step
   - build
-  - now your fresh binaries in user applications folder ($HOME/Applications/FKTools for mac, %HOMEPATH%\AppData\Roaming\FKTools for windows)
+  - now your fresh binaries in user applications folder ($HOME/Applications/FKTools for mac, $HOME/FKTools for other unix, %HOMEPATH%\AppData\Roaming\FKTools for windows)
 
 If you have any questions, write them to FajraKatviro@gmail.com and I will be glad to answer
