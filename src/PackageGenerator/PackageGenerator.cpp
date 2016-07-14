@@ -11,6 +11,8 @@
 
 #include <QImage>
 
+#include <QProcessEnvironment>
+
 #include "sizeString.h"
 #include "selectBestSizeset.h"
 #include <algorithm>
@@ -109,6 +111,17 @@ bool processResource(QProcess* process){
 
 bool PackageGenerator::buildRCC(){
     output("Build rcc");
+
+    QProcessEnvironment e(QProcessEnvironment::systemEnvironment());
+    QString qtdir(e.value("QTDIR"));
+    QString command;
+    if(!qtdir.isEmpty()){
+        command=qtdir+"/bin/rcc";
+    }else{
+        output("QTDIR environment variable is not set, trying run rcc from PATH");
+        command="rcc";
+    }
+
     QList<QProcess*> processPool;
     for(qint32 s=0;s<_targetSizes.size();++s){
         QString path=QString("%1/%2").arg(_buildFolder.path()).arg(FKUtility::sizeToString(_targetSizes.at(s)));
@@ -116,7 +129,7 @@ bool PackageGenerator::buildRCC(){
         QString target=QString("%1/%3.rcc").arg(targetPath).arg(FKUtility::sizeToString(_targetSizes.at(s)));
         QDir().mkpath(targetPath);
         QProcess* process=new QProcess;
-        process->setProgram("rcc");
+        process->setProgram(command);
         process->setArguments(QStringList()<<"-binary"   <<path+"/package.qrc"
                                            <<"-o"        <<target);
         processPool.append(process);
