@@ -3,7 +3,8 @@ TEMPLATE = subdirs
 SUBDIRS += \
     ImageManager \
     PackageGenerator \
-    PackageManager
+    PackageManager \
+    DeployQML
 
 OTHER_FILES += \
     ../README.md \

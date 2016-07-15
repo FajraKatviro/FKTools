@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
     a.setApplicationName("Imageset package generator");
-    a.setApplicationVersion("1.1");
+    a.setApplicationVersion("1.2");
 
     const qint32 delay=3000;
 
