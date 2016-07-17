@@ -1,12 +1,10 @@
 
 include(../FKUtils/fktools/fktoolsfolder.pri)
 
-#win32{
-#    target.path = "$$FK_TOOLS_FOLDER"
-    #target.extra = windeployqt --no-translations --qmldir "$$_PRO_FILE_PWD_" "$$DESTDIR"
-#    export(target.path)
-    #export(target.extra)
-#}
+win32{
+    deploy.commands = windeployqt --no-translations --qmldir "$$_PRO_FILE_PWD_" "$$FK_TOOLS_FOLDER/$${TARGET}.exe"
+    QMAKE_EXTRA_TARGETS += deploy
+}
 
 !ios:!android{
     target.path = "$$FK_TOOLS_FOLDER"

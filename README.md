@@ -8,6 +8,7 @@ Installation:
   - clone repository with --recursive option
   - configure project (src/FKTools.pro) with QtCreator
   - add 'make install' step
+  - (windows only) add 'make deploy' step
   - build
   - now your fresh binaries in user applications folder ($HOME/Applications/FKTools for mac, $HOME/FKTools for other unix, %HOMEPATH%\AppData\Roaming\FKTools for windows)
 
