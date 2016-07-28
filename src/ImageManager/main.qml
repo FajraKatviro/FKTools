@@ -113,7 +113,7 @@ ApplicationWindow {
                     Text{
                         anchors.centerIn: parent
                         text:modelData
-                        font.pointSize: 14
+                        font.pixelSize: 14
                     }
                     Button{
                         anchors.horizontalCenter: parent.horizontalCenter
@@ -167,7 +167,7 @@ ApplicationWindow {
                             id:imageName
                             width:headerColumnWidth - 10
                             text: rowItem.text
-                            font.pointSize: 14
+                            font.pixelSize: 14
                             wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                         }
                         CheckBox{
@@ -177,7 +177,7 @@ ApplicationWindow {
                             onCheckedChanged: imageCrop=checked
                             style: CheckBoxStyle{
                                 label:Text{
-                                    font.pointSize: 12
+                                    font.pixelSize: 12
                                     text:control.text
                                 }
                             }
