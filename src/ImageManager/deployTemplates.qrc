@@ -1,6 +1,8 @@
 <RCC>
     <qresource prefix="/">
-        <file>deployTemplates/icons</file>
-        <file>deployTemplates/splashscreens</file>
+        <file>deployTemplates/ios_icons</file>
+        <file>deployTemplates/ios_splashscreens</file>
+        <file>deployTemplates/android_icons</file>
+        <file>deployTemplates/android_splashscreens</file>
     </qresource>
 </RCC>

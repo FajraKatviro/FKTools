@@ -35,8 +35,10 @@ ApplicationWindow {
         }
         Menu {
             title: "Deploy images"
-            MenuItem { text: "iOS icons"; onTriggered: deployImageCreationRequest.newRequest("icons") }
-            MenuItem { text: "iOS splash screens";  onTriggered: deployImageCreationRequest.newRequest("splashscreens") }
+            MenuItem { text: "iOS icons"; onTriggered: deployImageCreationRequest.newRequest("ios_icons") }
+            MenuItem { text: "iOS splash screens";  onTriggered: deployImageCreationRequest.newRequest("ios_splashscreens") }
+            MenuItem { text: "android icons"; onTriggered: deployImageCreationRequest.newRequest("android_icons") }
+            MenuItem { text: "android splash screens";  onTriggered: deployImageCreationRequest.newRequest("android_splashscreens") }
         }
     }
 

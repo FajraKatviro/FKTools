@@ -221,7 +221,9 @@ void ImageChecker::spawnImage(const QUrl source, const QUrl target, const QStrin
         }
 
         QImage targetImage(sourceImage.scaled(width,height,Qt::IgnoreAspectRatio,Qt::SmoothTransformation));
-        if(!targetImage.save(targetDir.filePath(targetName),"PNG")){
+        QString filePath(targetDir.filePath(targetName));
+        QFileInfo(filePath).dir().mkpath(".");
+        if(!targetImage.save(filePath,"PNG")){
             emit packageManagerOutput(QString("Failed write %1").arg(targetDir.filePath(targetName)));
         }else{
             success = true;
