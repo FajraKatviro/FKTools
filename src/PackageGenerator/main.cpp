@@ -28,7 +28,9 @@ bool copyRecursive(const QDir& source,const QDir& target){
             if(!target.mkdir(*i)){
                 return false;
             }
-            return copyRecursive(QDir(sourceItem),QDir(targetItem));
+            if(!copyRecursive(QDir(sourceItem),QDir(targetItem))){
+                return false;
+            }
         }
     }
     return true;
