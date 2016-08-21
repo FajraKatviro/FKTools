@@ -7,6 +7,7 @@
 #include <QFile>
 #include <QDir>
 #include <QTextStream>
+#include <QPainter>
 
 #include "selectBestSizeset.h"
 #include "sizeString.h"
@@ -231,6 +232,36 @@ void ImageChecker::spawnImage(const QUrl source, const QUrl target, const QStrin
     }
 
     if(success)emit packageManagerOutput(QString("Image spawned to %1").arg(targetDir.absolutePath()));
+
+}
+
+void ImageChecker::createSpriteSheet(const QUrl source, const QUrl target)
+{
+    QDir sourceDir(source.toLocalFile());
+    QStringList files(sourceDir.entryList(QStringList("*.png")));
+    int rowCount=8;
+    int columnCount=files.count()/rowCount;
+    if(files.isEmpty() || rowCount*columnCount!=files.count()){
+        emit packageManagerOutput(QString("Invalid imageset for spritesheet"));
+    }
+
+    QSize spriteSize(QImage(sourceDir.absoluteFilePath(files.first())).size());
+
+    QImage spriteSheet(spriteSize.width()*columnCount,spriteSize.height()*rowCount,QImage::Format_ARGB32);
+    QPainter painter(&spriteSheet);
+    painter.setCompositionMode(QPainter::CompositionMode_Source);
+    painter.fillRect(spriteSheet.rect(),Qt::transparent);
+    painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+
+    for(int y=0;y<rowCount;++y){
+        for(int x=0;x<columnCount;++x){
+            painter.drawImage(x*spriteSize.width(),y*spriteSize.height(),QImage(sourceDir.absoluteFilePath(files.at(y*columnCount+x))));
+        }
+    }
+
+    spriteSheet.save(target.toLocalFile() + "/spritesheet.png","PNG");
+
+    packageManagerOutput(QString("Spritesheet created"));
 
 }
 

@@ -40,6 +40,10 @@ ApplicationWindow {
             MenuItem { text: "android icons"; onTriggered: deployImageCreationRequest.newRequest("android_icons") }
             MenuItem { text: "android splash screens";  onTriggered: deployImageCreationRequest.newRequest("android_splashscreens") }
         }
+        Menu {
+            title: "Sprites"
+            MenuItem { text: "Merge spritesheet"; onTriggered: spriteSourceSelector.open() }
+        }
     }
 
     Rectangle{
@@ -71,6 +75,30 @@ ApplicationWindow {
         selectExisting: true
         selectMultiple: false
         onAccepted: imageChecker.spawnPackage(fileUrl)
+    }
+
+    FileDialog{
+        id:spriteSourceSelector
+        title:"Choose sprites folder"
+        folder:"."
+        selectFolder: true
+        selectExisting: true
+        selectMultiple: false
+        property url lastSelected
+        onAccepted: {
+            lastSelected=fileUrl
+            spriteTargetSelector.open()
+        }
+    }
+
+    FileDialog{
+        id:spriteTargetSelector
+        title:"Choose target folder"
+        folder:"."
+        selectFolder: true
+        selectExisting: true
+        selectMultiple: false
+        onAccepted: imageChecker.createSpriteSheet(spriteSourceSelector.lastSelected,fileUrl)
     }
 
     Dialog{
