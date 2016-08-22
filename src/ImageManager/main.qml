@@ -21,6 +21,9 @@ ApplicationWindow {
     property int commonBorderWidth:1
     property int commonRadius:3
 
+    property int spriteWidth:100
+    property int spriteHeight:200
+
     ImageChecker{
         id:imageChecker
         onPackageManagerOutput: logOutput.append(output)
@@ -42,6 +45,7 @@ ApplicationWindow {
         }
         Menu {
             title: "Sprites"
+            MenuItem { text: "Select sprite size"; onTriggered: spriteSizeSelector.open() }
             MenuItem { text: "Merge spritesheet"; onTriggered: spriteSourceSelector.open() }
         }
     }
@@ -98,7 +102,27 @@ ApplicationWindow {
         selectFolder: true
         selectExisting: true
         selectMultiple: false
-        onAccepted: imageChecker.createSpriteSheet(spriteSourceSelector.lastSelected,fileUrl)
+        onAccepted: imageChecker.createSpriteSheet(spriteSourceSelector.lastSelected,fileUrl,spriteWidth,spriteHeight)
+    }
+
+    Dialog{
+        id:spriteSizeSelector
+        title:"Select size for sprites"
+        Column{
+            SpinBox{
+                value:spriteWidth
+                onValueChanged: spriteWidth=value
+                minimumValue: 1
+                maximumValue: 1024
+            }
+            SpinBox{
+                value:spriteHeight
+                onValueChanged: spriteHeight=value
+                minimumValue: 1
+                maximumValue: 1024
+            }
+        }
+        standardButtons:  StandardButton.Ok
     }
 
     Dialog{

@@ -235,7 +235,7 @@ void ImageChecker::spawnImage(const QUrl source, const QUrl target, const QStrin
 
 }
 
-void ImageChecker::createSpriteSheet(const QUrl source, const QUrl target)
+void ImageChecker::createSpriteSheet(const QUrl source, const QUrl target, const int spriteWidth, const int spriteHeight)
 {
     QDir sourceDir(source.toLocalFile());
     QStringList files(sourceDir.entryList(QStringList("*.png")));
@@ -245,9 +245,7 @@ void ImageChecker::createSpriteSheet(const QUrl source, const QUrl target)
         emit packageManagerOutput(QString("Invalid imageset for spritesheet"));
     }
 
-    QSize spriteSize(QImage(sourceDir.absoluteFilePath(files.first())).size());
-
-    QImage spriteSheet(spriteSize.width()*columnCount,spriteSize.height()*rowCount,QImage::Format_ARGB32);
+    QImage spriteSheet(spriteWidth*columnCount,spriteHeight*rowCount,QImage::Format_ARGB32);
     QPainter painter(&spriteSheet);
     painter.setCompositionMode(QPainter::CompositionMode_Source);
     painter.fillRect(spriteSheet.rect(),Qt::transparent);
@@ -255,7 +253,8 @@ void ImageChecker::createSpriteSheet(const QUrl source, const QUrl target)
 
     for(int y=0;y<rowCount;++y){
         for(int x=0;x<columnCount;++x){
-            painter.drawImage(x*spriteSize.width(),y*spriteSize.height(),QImage(sourceDir.absoluteFilePath(files.at(y*columnCount+x))));
+            QImage image(sourceDir.absoluteFilePath(files.at(y*columnCount+x)));
+            painter.drawImage(x*spriteWidth+(spriteWidth-image.width())/2.0,y*spriteHeight+(spriteHeight-image.height()),image);
         }
     }
 

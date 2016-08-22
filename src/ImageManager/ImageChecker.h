@@ -42,7 +42,7 @@ public slots:
     void removeSizeset(const QString size);
     void spawnPackage(const QUrl url);
     void spawnImage(const QUrl source, const QUrl target, const QString templateName);
-    void createSpriteSheet(const QUrl source, const QUrl target);
+    void createSpriteSheet(const QUrl source, const QUrl target,const int spriteWidth,const int spriteHeight);
 private slots:
     void refreshError();
     void rebuildModel(int returnCode);
